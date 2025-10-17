@@ -185,7 +185,6 @@ const Analysis = () => {
   // Upload state
   const [files, setFiles] = useState<UploadedFile[]>([]);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const [analysisComplete, setAnalysisComplete] = useState(false);
   const [analysisMode, setAnalysisMode] = useState<'predict' | 'detect'>('predict');
   
   // History state
@@ -589,13 +588,13 @@ const Analysis = () => {
   const analyzeFiles = async () => {
     if (!currentUser || files.length === 0) return;
     
-    // Filter out files that have already been uploaded
-    const filesToUpload = files.filter(file => !file.uploadComplete);
+    // Filter out files that have already been analyzed
+    const filesToAnalyze = files.filter(file => file.prediction === null);
     
-    if (filesToUpload.length === 0) {
+    if (filesToAnalyze.length === 0) {
       toast({
         title: 'No New Files',
-        description: 'All files have already been uploaded and analyzed.',
+        description: 'All files have already been analyzed.',
         status: 'info',
         duration: 3000,
         isClosable: true,
@@ -604,12 +603,11 @@ const Analysis = () => {
     }
     
     setIsAnalyzing(true);
-    setAnalysisComplete(false);
     
     try {
       // Upload only new files and get results
       const uploadResults = await Promise.all(
-        filesToUpload.map(async (file) => {
+        filesToAnalyze.map(async (file) => {
           try {
             // Find the original index in the files array
             const originalIndex = files.indexOf(file);
@@ -635,7 +633,7 @@ const Analysis = () => {
       }
       
       // Analyze and store results
-      const analysisPromises = filesToUpload.slice(0, successfulUploads.length).map(async (file, index) => {
+      const analysisPromises = filesToAnalyze.slice(0, successfulUploads.length).map(async (file, index) => {
         try {
           const result = successfulUploads[index];
           console.log('Processing upload result:', result); // Debug log
@@ -676,11 +674,16 @@ const Analysis = () => {
           console.log('Final analysis data to save:', analysisData);
           await addDoc(collection(db, 'analyses'), analysisData);
           
-          setFiles(prevFiles => {
-            const newFiles = [...prevFiles];
-            newFiles[index] = { ...newFiles[index], prediction };
-            return newFiles;
-          });
+          // Update the file in the UI with the prediction
+          // Find the correct index in the original files array
+          const originalIndex = files.indexOf(file);
+          if (originalIndex !== -1) {
+            setFiles(prevFiles => {
+              const newFiles = [...prevFiles];
+              newFiles[originalIndex] = { ...newFiles[originalIndex], prediction };
+              return newFiles;
+            });
+          }
           
           return { success: true };
         } catch (error) {
@@ -698,7 +701,6 @@ const Analysis = () => {
       });
       
       await Promise.all(analysisPromises);
-      setAnalysisComplete(true);
       
       toast({
         title: 'Analysis Complete',
@@ -963,9 +965,9 @@ const Analysis = () => {
                 isLoading={isAnalyzing}
                 loadingText="Analyzing..."
                 leftIcon={<FaImage />}
-                isDisabled={files.length === 0 || isAnalyzing}
+                isDisabled={files.length === 0 || isAnalyzing || files.every(f => f.prediction !== null)}
               >
-                {analysisComplete ? 'Re-analyze' : 'Analyze Images'}
+                Analyze Images
               </Button>
             </HStack>
             
