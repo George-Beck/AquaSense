@@ -49,7 +49,6 @@ interface AnalysisResult {
   imageUrl: string;
   storagePath?: string;
   species: string;
-  confidence: number;
   timestamp: Timestamp;
   location?: string;
 }
@@ -962,17 +961,13 @@ const Dashboard = () => {
                           )}
                         </Box>
                         <VStack align="stretch" spacing={2}>
-                          <HStack justify="space-between">
-                            <Text fontSize="sm" color={textColor}>
-                              <Text as="span" fontWeight="medium">Confidence:</Text>{' '}
-                              {Math.round(analysis.confidence * 100)}%
-                            </Text>
-                            {analysis.location && (
+                          {analysis.location && (
+                            <HStack justify="space-between">
                               <Text fontSize="xs" color={textColor} opacity={0.8} noOfLines={1} maxW="120px">
                                 {analysis.location}
                               </Text>
-                            )}
-                          </HStack>
+                            </HStack>
+                          )}
                         </VStack>
                       </CardBody>
                       <CardFooter pt={0}>
