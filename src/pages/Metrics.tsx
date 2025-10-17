@@ -23,7 +23,7 @@ import {
   Flex,
   Spinner,
 } from '@chakra-ui/react';
-import { FaChartBar, FaFolder, FaImage, FaCalendar, FaPercentage } from 'react-icons/fa';
+import { FaChartBar, FaFolder, FaImage, FaCalendar } from 'react-icons/fa';
 import { collection, getDocs, query, where, Timestamp } from 'firebase/firestore';
 import { db } from '../firebase/config';
 import { useAuth } from '../contexts/AuthContext';
@@ -56,7 +56,6 @@ interface Analysis {
   id: string;
   projectId: string;
   species: string;
-  confidence: number;
   timestamp: Timestamp;
   userId: string;
 }
@@ -64,9 +63,7 @@ interface Analysis {
 interface ProjectMetrics {
   project: Project;
   totalAnalyses: number;
-  avgConfidence: number;
   speciesBreakdown: { name: string; count: number; percentage: number }[];
-  confidenceDistribution: { range: string; count: number }[];
   timelineData: { date: string; count: number }[];
   analyses: Analysis[];
 }
@@ -177,18 +174,13 @@ const Metrics = () => {
         setMetrics({
           project,
           totalAnalyses: 0,
-          avgConfidence: 0,
           speciesBreakdown: [],
-          confidenceDistribution: [],
           timelineData: [],
           analyses: []
         });
         setIsLoading(false);
         return;
       }
-
-      // Calculate average confidence
-      const avgConfidence = analyses.reduce((sum, a) => sum + a.confidence, 0) / analyses.length;
 
       // Species breakdown
       const speciesCounts: { [key: string]: number } = {};
@@ -203,23 +195,6 @@ const Metrics = () => {
         }))
         .sort((a, b) => b.count - a.count);
 
-      // Confidence distribution
-      const confidenceRanges = [
-        { range: '0-20%', min: 0, max: 0.2, count: 0 },
-        { range: '20-40%', min: 0.2, max: 0.4, count: 0 },
-        { range: '40-60%', min: 0.4, max: 0.6, count: 0 },
-        { range: '60-80%', min: 0.6, max: 0.8, count: 0 },
-        { range: '80-100%', min: 0.8, max: 1.0, count: 0 },
-      ];
-      analyses.forEach(a => {
-        const rangeIndex = confidenceRanges.findIndex(
-          r => a.confidence >= r.min && a.confidence <= r.max
-        );
-        if (rangeIndex >= 0) {
-          confidenceRanges[rangeIndex].count++;
-        }
-      });
-
       // Timeline data (group by day)
       const timelineCounts: { [key: string]: number } = {};
       analyses.forEach(a => {
@@ -233,9 +208,7 @@ const Metrics = () => {
       setMetrics({
         project,
         totalAnalyses: analyses.length,
-        avgConfidence,
         speciesBreakdown,
-        confidenceDistribution: confidenceRanges,
         timelineData,
         analyses
       });
@@ -341,21 +314,6 @@ const Metrics = () => {
                 <CardBody>
                   <Stat>
                     <StatLabel display="flex" alignItems="center" gap={2}>
-                      <Icon as={FaPercentage} color="green.500" />
-                      Avg Confidence
-                    </StatLabel>
-                    <StatNumber fontSize="3xl">
-                      {(metrics.avgConfidence * 100).toFixed(1)}%
-                    </StatNumber>
-                    <StatHelpText>Mean probability</StatHelpText>
-                  </Stat>
-                </CardBody>
-              </Card>
-
-              <Card bg={cardBg} borderWidth="1px" borderColor={borderColor}>
-                <CardBody>
-                  <Stat>
-                    <StatLabel display="flex" alignItems="center" gap={2}>
                       <Icon as={FaFolder} color="purple.500" />
                       Species Found
                     </StatLabel>
@@ -424,36 +382,6 @@ const Metrics = () => {
                 </CardBody>
               </Card>
 
-              {/* Confidence Distribution Bar Chart */}
-              <Card bg={cardBg} borderWidth="1px" borderColor={borderColor}>
-                <CardHeader>
-                  <Heading size="md">Confidence Distribution</Heading>
-                  <Text fontSize="sm" color={textColor} mt={1}>
-                    Analysis confidence levels
-                  </Text>
-                </CardHeader>
-                <CardBody>
-                  <ResponsiveContainer width="100%" height={300}>
-                    <BarChart data={metrics.confidenceDistribution}>
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="range" />
-                      <YAxis />
-                      <Tooltip />
-                      <Bar dataKey="count" fill="#0080e6" />
-                    </BarChart>
-                  </ResponsiveContainer>
-                  
-                  <Text fontSize="sm" color={textColor} mt={4} textAlign="center">
-                    Most analyses fall in the{' '}
-                    <Text as="span" fontWeight="bold" color="brand.500">
-                      {metrics.confidenceDistribution.reduce((max, curr) => 
-                        curr.count > max.count ? curr : max
-                      ).range}
-                    </Text>
-                    {' '}confidence range
-                  </Text>
-                </CardBody>
-              </Card>
             </SimpleGrid>
 
             {/* Timeline Chart */}
