@@ -589,15 +589,31 @@ const Analysis = () => {
   const analyzeFiles = async () => {
     if (!currentUser || files.length === 0) return;
     
+    // Filter out files that have already been uploaded
+    const filesToUpload = files.filter(file => !file.uploadComplete);
+    
+    if (filesToUpload.length === 0) {
+      toast({
+        title: 'No New Files',
+        description: 'All files have already been uploaded and analyzed.',
+        status: 'info',
+        duration: 3000,
+        isClosable: true,
+      });
+      return;
+    }
+    
     setIsAnalyzing(true);
     setAnalysisComplete(false);
     
     try {
-      // Upload files and get results
+      // Upload only new files and get results
       const uploadResults = await Promise.all(
-        files.map(async (file, index) => {
+        filesToUpload.map(async (file) => {
           try {
-            const result = await uploadFile(file, index);
+            // Find the original index in the files array
+            const originalIndex = files.indexOf(file);
+            const result = await uploadFile(file, originalIndex);
             if (!result || !result.downloadURL || !result.storagePath) {
               throw new Error('Upload failed - missing URL or path');
             }
@@ -619,7 +635,7 @@ const Analysis = () => {
       }
       
       // Analyze and store results
-      const analysisPromises = files.slice(0, successfulUploads.length).map(async (file, index) => {
+      const analysisPromises = filesToUpload.slice(0, successfulUploads.length).map(async (file, index) => {
         try {
           const result = successfulUploads[index];
           console.log('Processing upload result:', result); // Debug log

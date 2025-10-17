@@ -31,8 +31,6 @@ import {
   PieChart,
   Pie,
   Cell,
-  BarChart,
-  Bar,
   LineChart,
   Line,
   XAxis,
