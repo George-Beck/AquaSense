@@ -637,7 +637,14 @@ const Analysis = () => {
         try {
           const result = successfulUploads[index];
           console.log('Processing upload result:', result); // Debug log
-          const prediction = await analyzeImage(file, analysisMode);
+          
+          // Fetch the uploaded file from Firebase Storage for analysis
+          // This ensures we have the actual file data, especially important on mobile
+          const response = await fetch(result.downloadURL);
+          const blob = await response.blob();
+          const fileForAnalysis = new File([blob], file.name, { type: file.type });
+          
+          const prediction = await analyzeImage(fileForAnalysis, analysisMode);
           
           // Validate required data before saving
           if (!result.storagePath || !result.downloadURL) {
@@ -997,6 +1004,19 @@ const Analysis = () => {
                       objectFit="cover"
                       w="100%"
                       h="100%"
+                      loading="eager"
+                      fallback={
+                        <Box
+                          w="100%"
+                          h="100%"
+                          bg={imagePlaceholderBg}
+                          display="flex"
+                          alignItems="center"
+                          justifyContent="center"
+                        >
+                          <Icon as={FaImage} boxSize={8} color={imagePlaceholderIconColor} />
+                        </Box>
+                      }
                     />
                     {file.uploadProgress && file.uploadProgress < 100 && (
                       <Box position="absolute" bottom={0} left={0} right={0} p={2}>

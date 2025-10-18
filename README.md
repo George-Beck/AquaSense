@@ -1,73 +1,43 @@
-# React + TypeScript + Vite
+# AquaSense
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+AI-powered marine species identification for underwater research.
 
-Currently, two official plugins are available:
+## What Does It Do?
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+AquaSense automatically identifies marine species from underwater photos. Simply upload an image, and the AI tells you what species are present. Perfect for marine biologists, researchers, and ocean conservationists.
 
-## React Compiler
+## Key Features
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+### Smart Species Detection
+- **Single Species Mode** - Best for photos with one main animal
+- **Multiple Species Mode** - Finds all species in complex seafloor images with marked locations
 
-## Expanding the ESLint configuration
+### Organize Your Research
+- Group your photos into research projects
+- Add notes and descriptions
+- Track your findings over time
+- View charts showing what species you've discovered
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+### Work With Your Team
+- Share projects with colleagues via email
+- Everyone can upload photos and see results
+- Perfect for field teams and collaborative research
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+### Easy Photo Upload
+- Drag and drop photos from your computer
+- Take photos directly with your phone camera
+- Search through past analyses
+- Download your data for reports
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+### Visual Insights
+- Charts showing species distribution
+- Timeline of your discoveries
+- Summary statistics for each project
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+## Built With
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+Modern web technologies and cloud services to ensure fast, reliable performance and secure data storage.
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+---
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+Designed to help marine researchers work faster and more efficiently.
